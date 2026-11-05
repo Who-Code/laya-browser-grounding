@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Triage Rush</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{--bg:#0f1218;--panel:#181d27;--ink:#e8ecf3;--mute:#8b94a7;--ok:#3ddc97;--bad:#ff5d6c;--acc:#6ea8ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,system-ui,sans-serif;display:flex;flex-direction:column;height:100vh}
+  header{display:flex;gap:24px;align-items:center;padding:12px 20px;background:var(--panel);border-bottom:1px solid #262d3b}
+  header h1{font-size:16px;margin:0;flex:1}
+  .stat b{font-size:20px;font-variant-numeric:tabular-nums}.stat span{color:var(--mute);font-size:12px;display:block}
+  #field{position:relative;flex:1;overflow:hidden}
+  .card{position:absolute;left:50%;width:min(560px,86%);transform:translateX(-50%);padding:12px 16px;background:#222a3a;border:1px solid #33405a;border-radius:10px;font-size:16px;will-change:top}
+  .card.ok{background:#164a37;border-color:var(--ok)}.card.bad{background:#53212a;border-color:var(--bad)}
+  #bins{display:flex;gap:12px;padding:14px 20px;background:var(--panel);border-top:1px solid #262d3b}
+  .bin{flex:1;padding:18px;font-size:17px;font-weight:600;color:var(--ink);background:#243049;border:2px solid #3a4b6d;border-radius:12px;cursor:pointer}
+  .bin:hover{background:#2c3b5b}.bin small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+  #overlay{position:absolute;inset:0;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#0f1218ee;text-align:center;z-index:5}
+  #overlay button{font-size:18px;padding:12px 28px;border-radius:10px;border:0;background:var(--acc);color:#06101f;font-weight:700;cursor:pointer}
+  #overlay p{max-width:460px;color:var(--mute);margin:0}
+</style></head>
+<body>
+<header>
+  <h1>Triage Rush <span style="color:var(--mute);font-weight:400">route each customer message to the right team</span></h1>
+  <div class="stat"><b id="score">0</b><span>score</span></div>
+  <div class="stat"><b id="right">0</b><span>correct</span></div>
+  <div class="stat"><b id="wrong">0</b><span>wrong / missed</span></div>
+  <div class="stat"><b id="time">30</b><span>seconds</span></div>
+</header>
+<div id="field"><div id="overlay"><h2 id="otitle" style="margin:0">Ready?</h2><p id="osub">Messages fall from the top. Send the lowest one to the right team before it hits the bottom. Keys 1 / 2 / 3 or click.</p><button id="start">Start</button></div></div>
+<div id="bins">
+  <button class="bin" id="bin-billing" data-team="billing">Billing<small>[1] payments, refunds, invoices</small></button>
+  <button class="bin" id="bin-technical" data-team="technical">Technical<small>[2] bugs, errors, outages</small></button>
+  <button class="bin" id="bin-sales" data-team="sales">Sales<small>[3] pricing, demos, upgrades</small></button>
+</div>
+<script>
+const Q = new URLSearchParams(location.search);
+const DURATION = +(Q.get('duration') || 30);
+const LEVELS = {chill:[1500,700,6000,3800], fast:[1000,350,4500,2600], insane:[600,180,3500,1800]}; // spawn start/end ms, fall start/end ms
+const LV = LEVELS[Q.get('level')] || LEVELS.fast;
+let seed = +(Q.get('seed') || Date.now() % 100000);
+const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+
+let MSGS = {}, items = [], nextId = 1, t0 = 0, lastSpawn = 0, running = false;
+const S = {score: 0, right: 0, wrong: 0, missed: 0, resolved: 0};
+const field = document.getElementById('field');
+const $ = id => document.getElementById(id);
+const truth = new Map();  // id -> team (kept out of the DOM on purpose: agents must read the text)
+
+function spawn(now){
+  const teams = Object.keys(MSGS), team = teams[Math.floor(rnd()*teams.length)];
+  const text = MSGS[team][Math.floor(rnd()*MSGS[team].length)];
+  const el = document.createElement('div'); el.className = 'card'; el.textContent = text;
+  const id = nextId++; el.dataset.id = id; field.appendChild(el);
+  truth.set(id, team); items.push({id, el, born: now, fall: lerp(LV[2], LV[3], progress(now))});
+}
+const progress = now => Math.min(1, (now - t0) / (DURATION * 1000));
+const lerp = (a, b, t) => a + (b - a) * t;
+function frame(now){
+  if (!running) return;
+  const elapsed = now - t0;
+  $('time').textContent = Math.max(0, Math.ceil(DURATION - elapsed/1000));
+  if (elapsed >= DURATION*1000) return end();
+  if (now - lastSpawn > lerp(LV[0], LV[1], progress(now))) { spawn(now); lastSpawn = now; }
+  const H = field.clientHeight - 56;
+  for (const it of [...items]) {
+    const y = ((now - it.born) / it.fall) * H; it.y = y; it.el.style.top = y + 'px';
+    if (y >= H) { S.missed++; S.score--; S.resolved++; remove(it, 'bad'); }
+  }
+  render(); requestAnimationFrame(frame);
+}
+function remove(it, cls){ items = items.filter(x => x !== it); it.el.classList.add(cls); setTimeout(() => it.el.remove(), 250); }
+function render(){ $('score').textContent = S.score; $('right').textContent = S.right; $('wrong').textContent = S.wrong + S.missed; }
+function route(team){
+  if (!running || !items.length) return;
+  const it = items.reduce((a, b) => (a.y >= b.y ? a : b));       // lowest card
+  const ok = truth.get(it.id) === team;
+  if (ok) { S.right++; S.score++; } else { S.wrong++; S.score--; }
+  S.resolved++; remove(it, ok ? 'ok' : 'bad'); render();
+}
+function end(){
+  running = false; window.__over = true;
+  $('otitle').textContent = `Final score: ${S.score}`;
+  $('osub').textContent = `${S.right} correct, ${S.wrong} wrong, ${S.missed} missed.`;
+  $('start').textContent = 'Play again'; $('overlay').style.display = 'flex';
+}
+function start(){
+  document.querySelectorAll('.card').forEach(c => c.remove());
+  Object.assign(S, {score: 0, right: 0, wrong: 0, missed: 0, resolved: 0}); items = []; truth.clear(); render();
+  window.__over = false; $('overlay').style.display = 'none'; running = true;
+  t0 = lastSpawn = performance.now(); spawn(t0); requestAnimationFrame(frame);
+}
+document.querySelectorAll('.bin').forEach(b => b.addEventListener('click', () => route(b.dataset.team)));
+addEventListener('keydown', e => { const t = {1:'billing',2:'technical',3:'sales'}[e.key]; if (t) route(t); });
+$('start').addEventListener('click', start);
+window.__score = () => ({...S, over: !!window.__over, running});
+fetch('/static/messages.json').then(r => r.json()).then(m => { MSGS = m; window.__ready = true; if (Q.get('autostart')) start(); });
+</script></body></html>

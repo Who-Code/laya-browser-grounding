@@ -1,0 +1,32 @@
+{
+  "billing": [
+    "I was charged twice this month, please refund the duplicate",
+    "My invoice shows the wrong amount",
+    "Can I get a receipt for last week's payment?",
+    "Please update the credit card on my account",
+    "I want my money back for the cancelled order",
+    "Why is there a mystery charge on my statement?",
+    "The coupon code did not apply at checkout payment",
+    "Send me a VAT invoice for my subscription"
+  ],
+  "technical": [
+    "The app crashes every time I open settings",
+    "I get error 500 when uploading a file",
+    "Login page keeps spinning and never loads",
+    "The export button does nothing when clicked",
+    "Notifications stopped working after the update",
+    "Site is down, nobody on my team can connect",
+    "The API returns a timeout on every request",
+    "Dark mode makes the text unreadable, a bug?"
+  ],
+  "sales": [
+    "How much does the enterprise plan cost?",
+    "Can I get a demo for my team of 50 people?",
+    "Do you offer a discount for annual contracts?",
+    "I would like to upgrade to the premium tier",
+    "What is the difference between Pro and Business plans?",
+    "Can you send me a quote for 200 seats?",
+    "Is there a student pricing option?",
+    "We want to buy licenses for our whole company"
+  ]
+}

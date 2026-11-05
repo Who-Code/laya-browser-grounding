@@ -1,0 +1,81 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Laya Pilot</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#f5f6f9;--panel:#fff;--ink:#161b26;--mute:#6a7388;--line:#dfe3ec;--acc:#2f5fe3;--ok:#13a56b;--bad:#d9364a}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1117;--panel:#171b24;--ink:#e8ecf3;--mute:#8b94a7;--line:#262d3b;--acc:#6ea8ff;--ok:#3ddc97;--bad:#ff5d6c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,system-ui,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px}
+h1{font-size:20px;margin:0}h1 span{color:var(--mute);font-weight:400;font-size:14px;margin-left:8px}
+.row{display:grid;grid-template-columns:340px 1fr;gap:16px;margin-top:16px}@media(max-width:820px){.row{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+label{display:block;font-size:12px;color:var(--mute);margin:12px 0 4px}
+select,input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.tabs{display:flex;gap:6px}.tabs button{flex:1;padding:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer;font:inherit}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.go{margin-top:16px;width:100%;padding:11px;font:600 15px inherit;border:0;border-radius:9px;background:var(--acc);color:#fff;cursor:pointer}
+.go:disabled{opacity:.45;cursor:default}.stop{background:var(--bad);margin-top:8px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;background:var(--line);color:var(--mute)}.pill.ready{background:#13a56b22;color:var(--ok)}.pill.running{background:#2f5fe322;color:var(--acc)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:600px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.tile b{font-size:24px;font-variant-numeric:tabular-nums;display:block}.tile span{font-size:12px;color:var(--mute)}
+#log{margin-top:14px;max-height:380px;overflow:auto;font:12.5px ui-monospace,Menlo,monospace}
+#log div{display:grid;grid-template-columns:34px 1fr 86px 52px 56px;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
+#log .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pick{color:var(--acc);font-weight:600}
+.note{margin-top:12px;color:var(--mute);font-size:13px}.err{color:var(--bad)}
+.hide{display:none}
+</style></head><body><div class="wrap">
+<h1>Laya Pilot <span>local browser decisions with Laya-MLX · <span id="model">…</span></span></h1>
+<div class="row">
+ <div class="panel">
+  <div>Status: <span class="pill" id="state">loading model…</span></div>
+  <label>Mode</label>
+  <div class="tabs"><button data-m="game" class="on">Bot plays</button><button data-m="human">You play</button><button data-m="web">Web goal</button></div>
+  <div id="gameopts">
+   <label>Difficulty</label><select id="level"><option value="chill">Chill</option><option value="fast" selected>Fast</option><option value="insane">Insane</option></select>
+   <label>Seed (same seed = same cards, for fair You-vs-Bot)</label><input id="seed" type="number" value="7">
+  </div>
+  <div id="webopts" class="hide">
+   <label>Start URL (blank = built-in Help Center)</label><input id="url" placeholder="http://127.0.0.1:8765/help">
+   <label>Goal</label><input id="goal" value="I was charged twice and want my money back">
+  </div>
+  <button class="go" id="start" disabled>Start</button><button class="go stop hide" id="stop">Stop</button>
+  <p class="note" id="hint">The bot opens Chrome, reads each falling message from the page, asks Laya which team owns it, and clicks the bin.</p>
+ </div>
+ <div class="panel">
+  <div class="tiles">
+   <div class="tile"><b id="t-dec">0</b><span>decisions</span></div>
+   <div class="tile"><b id="t-lat">–</b><span>Laya latency, median ms</span></div>
+   <div class="tile"><b id="t-e2e">–</b><span>seen → clicked, median ms</span></div>
+   <div class="tile"><b id="t-score">–</b><span>game score</span></div>
+  </div>
+  <div id="note" class="note"></div>
+  <div id="log"></div>
+ </div>
+</div></div>
+<script>
+const $ = id => document.getElementById(id); let mode = 'game', ready = false, lat = [], e2e = [];
+const ws = new WebSocket(`ws://${location.host}/ws`);
+const med = a => a.length ? [...a].sort((x, y) => x - y)[a.length >> 1] : null;
+const f = x => x == null ? '–' : x < 10 ? x.toFixed(1) : Math.round(x);
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  mode = b.dataset.m; document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  $('gameopts').classList.toggle('hide', mode === 'web'); $('webopts').classList.toggle('hide', mode !== 'web');
+  $('hint').textContent = {game: 'The bot opens Chrome, reads each falling message from the page, asks Laya which team owns it, and clicks the bin.',
+    human: 'Opens the same game (same seed) for you. Play it, then run the bot with the same seed and compare scores.',
+    web: 'Laya judges "does this page help?" (yes/no), then picks the best link on the page (multiple choice), up to 4 steps.'}[mode];
+});
+$('start').onclick = () => { lat = []; e2e = []; $('log').innerHTML = ''; $('t-dec').textContent = 0; $('t-score').textContent = '–'; $('note').textContent = '';
+  ws.send(JSON.stringify({cmd: 'start', mode, level: $('level').value, seed: $('seed').value, url: $('url').value, goal: $('goal').value})); };
+$('stop').onclick = () => ws.send(JSON.stringify({cmd: 'stop'}));
+function setState(s){ $('state').textContent = s; $('state').className = 'pill ' + s; $('start').disabled = s !== 'ready'; $('stop').classList.toggle('hide', s !== 'running'); }
+ws.onmessage = ev => { const m = JSON.parse(ev.data);
+  if (m.type === 'status') { setState(m.state === 'loading' ? 'loading model…' : m.state); if (m.model) $('model').textContent = m.model + (m.load_s ? ` (loaded in ${m.load_s}s)` : ''); }
+  else if (m.type === 'decision') {
+    lat.push(m.laya_ms); e2e.push(m.seen_to_click_ms); $('t-dec').textContent = m.n; $('t-lat').textContent = f(med(lat)); $('t-e2e').textContent = f(med(e2e));
+    if (m.score != null) $('t-score').textContent = m.score;
+    const d = document.createElement('div'); d.innerHTML = `<span>${m.n}</span><span class="t"></span><span class="pick"></span><span>${(m.p*100|0)}%</span><span>${f(m.laya_ms)}ms</span>`;
+    d.children[1].textContent = m.text; d.children[2].textContent = m.choice; $('log').prepend(d); }
+  else if (m.type === 'finished') { $('note').textContent = m.mode === 'game' ? `Finished: score ${m.result.score} (${m.result.right} correct, ${m.result.wrong} wrong, ${m.result.missed} missed).` : `Finished on: ${m.result.title} (${m.result.url})`; }
+  else if (m.type === 'note') $('note').textContent = m.text;
+  else if (m.type === 'error') { $('note').innerHTML = ''; const s = document.createElement('span'); s.className = 'err'; s.textContent = m.text; $('note').append(s); }
+};
+</script></body></html>

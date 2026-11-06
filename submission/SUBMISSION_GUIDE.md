@@ -3,7 +3,7 @@
 ## 1. What is in this folder
 | Item | Use |
 |---|---|
-| `paper.pdf` | Final PDF (14 pages, built from the LaTeX source) |
+| `keller-2026-laya-mlx-browser-automation.pdf` | Final PDF (17 pages, built from the LaTeX source) |
 | `paper/main.tex`, `paper/figures/`, `paper/tables/` | LaTeX source (tables and figures are generated from the raw results by `replication/code/make_figures_tables.py`) |
 | `arxiv_source.zip` | The source bundle for arXiv; verified to compile on its own in an empty directory |
 | `replication/` and `replication_package.zip` | Code, fixtures, raw results, README, license, `CITATION.cff` (for a Zenodo/GitHub deposit) |
@@ -23,9 +23,9 @@ License choices (paper CC BY 4.0, code MIT, data CC BY 4.0) are my defaults; cha
 * Live-site results can change with the sites; the checkbox click timeout seen in three live runs could not be reproduced (8 isolated attempts), so its cause is undetermined.
 
 ## 4. Where to submit, and what each needs (from the sources I could check)
-**arXiv.** Submit the **TeX source** (`arxiv_source.zip`): arXiv accepts a PDF only when it was *not* produced from TeX/LaTeX, so do not upload `paper.pdf` instead. First-time authors need an **endorsement** for the category (an institutional e-mail alone no longer suffices since January 2026). Suggested categories (moderators may change them): primary **cs.SE** or **cs.AI**, cross-list **cs.HC**. Suggested comments: "14 pages, 4 figures; code and data: <DOI>". Use `arxiv_abstract.txt` for the abstract. Sources are secondary summaries, so confirm at <https://info.arxiv.org/help/submit/>.
+**arXiv.** Submit the **TeX source** (`arxiv_source.zip`): arXiv accepts a PDF only when it was *not* produced from TeX/LaTeX, so do not upload `keller-2026-laya-mlx-browser-automation.pdf` instead. First-time authors need an **endorsement** for the category (an institutional e-mail alone no longer suffices since January 2026). Suggested categories (moderators may change them): primary **cs.SE** or **cs.AI**, cross-list **cs.HC**. Suggested comments: "14 pages, 4 figures; code and data: <DOI>". Use `arxiv_abstract.txt` for the abstract. Sources are secondary summaries, so confirm at <https://info.arxiv.org/help/submit/>.
 
-**Zenodo** (gives a citable DOI, no endorsement). Create two records: (a) the paper (`paper.pdf`, upload type Publication, subtype Preprint, metadata from `zenodo_metadata.json`), (b) `replication_package.zip` (upload type Software or Dataset, `replication/.zenodo.json`). Required fields reported by community guides: title, description, upload type, creators, access rights, license. Publish (b) first, put its DOI into the paper's availability statement and `CITATION.cff`, rebuild, then publish (a). Files can only be changed for a short period after publishing; later changes need a new version.
+**Zenodo** (gives a citable DOI, no endorsement). Create two records: (a) the paper (`keller-2026-laya-mlx-browser-automation.pdf`, upload type Publication, subtype Preprint, metadata from `zenodo_metadata.json`), (b) `replication_package.zip` (upload type Software or Dataset, `replication/.zenodo.json`). Required fields reported by community guides: title, description, upload type, creators, access rights, license. Publish (b) first, put its DOI into the paper's availability statement and `CITATION.cff`, rebuild, then publish (a). Files can only be changed for a short period after publishing; later changes need a new version.
 
 **OSF Preprints, SSRN, ResearchGate, TechRxiv** and similar: I did not research their rules. Typical requirements are the PDF, title, abstract, author list with affiliations, keywords and a license; check each site's current policy, especially on AI-assisted content and on whether they take a paper already on arXiv.
 

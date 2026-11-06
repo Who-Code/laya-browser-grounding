@@ -11,9 +11,9 @@
 | `zenodo_metadata.json`, `replication/.zenodo.json` | Metadata for the paper record and the software/data record |
 
 ## 2. Status of the placeholders
-Filled in: author (Robert Keller, independent researcher, development@whocode.de), contributions, competing interests (none), funding (none), license holder, `CITATION.cff`, Zenodo creator fields. ORCID and acknowledgements were left out on purpose.
-Still open (cannot be filled before you deposit): **repository / DOI** in the "Data and code availability" paragraph of `paper/main.tex` (red), and `date-released`, `doi` and `repository-code` in `replication/CITATION.cff`. After depositing the replication package, edit those, rebuild with `pdflatex main.tex` (twice) and re-zip.
-Please re-check: the AI-assistance statement is now a plain disclosure; it no longer claims that you reviewed every number, so do that review (section 3) before you submit. License choices (paper CC BY 4.0, code MIT, data CC BY 4.0) are my defaults; change them if needed.
+Filled in: author, contributions, competing interests (none), funding (none), license holder, citation files, and the repository URL (<https://github.com/Who-Code/laya-browser-grounding>; the paper's availability sentence is only true once the repository is public).
+Still open: the **Zenodo DOI** (one red marker in the "Data and code availability" paragraph of `paper/main.tex`). It exists only after the repository is public and a release has been archived by Zenodo; then replace the marker, add the DOI to the root `CITATION.cff` (`doi:`) and to `submission/replication/CITATION.cff`, rebuild (`pdflatex main.tex` twice) and re-zip. The arXiv identifier can be added the same way after arXiv assigns it.
+License choices (paper CC BY 4.0, code MIT, data CC BY 4.0) are my defaults; change them if needed.
 
 ## 3. Verify before you submit (recommended, not optional)
 * **Read the whole paper and check each number against `replication/code/results/` and the paper's generated tables.** arXiv reportedly started one-year submission bans in May 2026 for papers with unchecked AI-generated content such as hallucinated references (secondary sources; confirm on arXiv's own pages).

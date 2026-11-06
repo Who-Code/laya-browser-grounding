@@ -19,7 +19,6 @@
     "Apple MLX",
     "confidence cascades"
   ],
-  "publication_date": "[YYYY-MM-DD]",
   "language": "eng",
-  "notes": "Measurements made 5-6 November 2026. Replication package: [Zenodo DOI of the software/data record]."
+  "notes": "Measurements made 5-6 November 2026. Code and data: https://github.com/Who-Code/laya-browser-grounding"
 }

@@ -8,6 +8,7 @@ authors:
     orcid: "https://orcid.org/0009-0003-0388-5246"
     affiliation: "Independent researcher"
 license: MIT
+doi: "10.5281/zenodo.24004198"
 repository-code: "https://github.com/Who-Code/laya-browser-grounding"
 keywords: [browser automation, element grounding, GUI testing, encoder models, Apple MLX]
 preferred-citation:
@@ -17,4 +18,4 @@ preferred-citation:
     - family-names: "Keller"
       given-names: "Robert"
   year: 2026
-  notes: "Preprint. Add the arXiv identifier or Zenodo DOI here once available."
+  notes: "Preprint. Add the arXiv identifier here once available."

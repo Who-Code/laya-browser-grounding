@@ -12,7 +12,7 @@
 
 ## 2. Status of the placeholders
 Filled in: author, contributions, competing interests (none), funding (none), license holder, citation files, and the repository URL (<https://github.com/Who-Code/laya-browser-grounding>; the paper's availability sentence is only true once the repository is public).
-Still open: the **Zenodo DOI** (one red marker in the "Data and code availability" paragraph of `paper/main.tex`). It exists only after the repository is public and a release has been archived by Zenodo; then replace the marker, add the DOI to the root `CITATION.cff` (`doi:`) and to `submission/replication/CITATION.cff`, rebuild (`pdflatex main.tex` twice) and re-zip. The arXiv identifier can be added the same way after arXiv assigns it.
+Zenodo DOI: filled (concept DOI 10.5281/zenodo.24004198; v1.0.0 = 10.5281/zenodo.24004199). The archived v1.0.0 snapshot was taken before the DOI was written into the paper; to archive a DOI-bearing copy, publish a v1.0.1 release. Still open: the arXiv identifier, to be added after arXiv assigns it.
 License choices (paper CC BY 4.0, code MIT, data CC BY 4.0) are my defaults; change them if needed.
 
 ## 3. Verify before you submit (recommended, not optional)

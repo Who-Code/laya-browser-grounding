@@ -9,5 +9,6 @@ authors:
     affiliation: "Independent researcher"
 license: MIT
 version: "1.0.0"
+doi: "10.5281/zenodo.24004198"
 repository-code: "https://github.com/Who-Code/laya-browser-grounding"
 keywords: [browser automation, element grounding, GUI testing, encoder models, Apple MLX]

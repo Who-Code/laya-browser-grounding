@@ -2,7 +2,7 @@
 
 Measurements and a small demo of [Laya-MLX](https://github.com/mizorewww/laya-mlx), a small encoder that answers "which option?" questions in one forward pass on Apple GPUs, used as an **element-grounding engine for browser automation**: given an instruction ("Tick off *Walk dog*") and the interactive elements of a page, which element should be operated?
 
-The study is written up in [`PAPER.pdf`](PAPER.pdf) (LaTeX source in `submission/paper/`).
+The study is written up in [`PAPER.pdf`](PAPER.pdf) (LaTeX source in `submission/paper/`). The preprint is also on Zenodo: [10.5281/zenodo.24005550](https://doi.org/10.5281/zenodo.24005550) (code archive: [10.5281/zenodo.24004198](https://doi.org/10.5281/zenodo.24004198)).
 
 ## Headline results (Apple M2 Pro, 16 GB; details and caveats in the paper)
 - With a frame-aware snapshot, Laya-ML completed every checkout step through same-origin, cross-origin and nested iframes and open shadow DOM (2/6 with a main-frame-only snapshot) and chose the right element in all 94 live-site decisions (18 distinct decisions x 5 runs, median 51 ms).

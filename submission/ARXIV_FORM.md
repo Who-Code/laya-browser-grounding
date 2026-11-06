@@ -7,7 +7,7 @@ Upload: `submission/arxiv_source.zip` (TeX source; do **not** upload the PDF). a
 | Title | Laya-MLX as a Fast Local Decision Engine for Browser Automation: Element Grounding in Iframes, UI Tests and Live Sites on Apple Silicon |
 | Authors | Robert Keller |
 | Abstract | contents of `submission/arxiv_abstract.txt` (1,756 characters, plain text) |
-| Comments | 17 pages, 4 figures, 17 tables. Code and data: https://github.com/Who-Code/laya-browser-grounding (archived: doi:10.5281/zenodo.24004198) |
+| Comments | 17 pages, 4 figures, 17 tables. Code and data: https://github.com/Who-Code/laya-browser-grounding (archived: doi:10.5281/zenodo.24004198; preprint also at doi:10.5281/zenodo.24005550) |
 | Primary category (suggested) | cs.SE (Software Engineering); alternative: cs.AI |
 | Cross-list (suggested) | cs.AI, cs.HC |
 | License | CC BY 4.0 (your choice; arXiv's default non-exclusive license is also acceptable) |

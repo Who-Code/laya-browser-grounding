@@ -18,4 +18,5 @@ preferred-citation:
     - family-names: "Keller"
       given-names: "Robert"
   year: 2026
-  notes: "Preprint. Add the arXiv identifier here once available."
+  doi: "10.5281/zenodo.24005550"
+  notes: "Preprint on Zenodo (all versions DOI). Add the arXiv identifier here once available."

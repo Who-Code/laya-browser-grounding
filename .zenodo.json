@@ -1,0 +1,21 @@
+{
+  "upload_type": "software",
+  "title": "Laya Browser Grounding: code, test fixtures and raw results for 'Laya-MLX as a Fast Local Decision Engine for Browser Automation'",
+  "creators": [
+    {
+      "name": "Keller, Robert",
+      "affiliation": "Independent researcher"
+    }
+  ],
+  "description": "Code, local test fixtures, raw per-decision results and the LaTeX source of a measurement study of Laya-MLX as an element-grounding engine for browser automation on Apple Silicon (iframes, shadow DOM, UI mutations, live sites, baselines, confidence cascades).",
+  "access_right": "open",
+  "license": "mit",
+  "keywords": [
+    "browser automation",
+    "element grounding",
+    "GUI testing",
+    "encoder models",
+    "Apple MLX"
+  ],
+  "language": "eng"
+}

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+nohup.out
+# generated / duplicated artifacts (attach to releases instead)
+submission/*.zip
+submission/paper/main.pdf
+submission/paper/*.aux
+submission/paper/*.out
+experiments/results/grounding.json

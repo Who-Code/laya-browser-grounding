@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software or its data, please cite the accompanying paper."
+title: "Laya Browser Grounding: Laya-MLX as a fast local decision engine for browser automation"
+type: software
+authors:
+  - family-names: "Keller"
+    given-names: "Robert"
+    affiliation: "Independent researcher"
+license: MIT
+repository-code: "https://github.com/Who-Code/laya-browser-grounding"
+keywords: [browser automation, element grounding, GUI testing, encoder models, Apple MLX]
+preferred-citation:
+  type: article
+  title: "Laya-MLX as a Fast Local Decision Engine for Browser Automation: Element Grounding in Iframes, UI Tests and Live Sites on Apple Silicon"
+  authors:
+    - family-names: "Keller"
+      given-names: "Robert"
+  year: 2026
+  notes: "Preprint. Add the arXiv identifier or Zenodo DOI here once available."

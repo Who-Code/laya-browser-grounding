@@ -4,7 +4,8 @@
   "creators": [
     {
       "name": "Keller, Robert",
-      "affiliation": "Independent researcher"
+      "affiliation": "Independent researcher",
+      "orcid": "0009-0003-0388-5246"
     }
   ],
   "description": "Code, local test fixtures, raw per-decision results and the LaTeX source of a measurement study of Laya-MLX as an element-grounding engine for browser automation on Apple Silicon (iframes, shadow DOM, UI mutations, live sites, baselines, confidence cascades).",

@@ -5,7 +5,8 @@
   "creators": [
     {
       "name": "Keller, Robert",
-      "affiliation": "Independent researcher"
+      "affiliation": "Independent researcher",
+      "orcid": "0009-0003-0388-5246"
     }
   ],
   "description": "Browser agents and instruction-driven UI tests spend most of their time and cost in a language-model call that chooses the next action. Laya is a small encoder (322M-421M parameters) that answers constrained questions-choose an option, score, judge true/false-in a single forward pass; laya-mlx runs it on Apple GPUs. We evaluate it as an element-grounding engine: given an instruction and a page's interactive elements, which element should be used? Our open pipeline snapshots a page across iframes and open shadow DOM, asks Laya, and acts through Playwright. On an Apple M2 Pro we tested a todo app (original plus four UI mutations), a checkout flow with nested cross-origin iframes, shadow DOM and a canvas control, 19 steps on public sites (five runs), and a replay of 144 logged decisions (38 distinct instructions) through Laya, a lexical matcher, bge-m3 embeddings and a local Qwen3-8B model. With a frame-aware snapshot, the 322M Laya model completed every checkout step through nested cross-origin iframes (2/6 with a main-frame-only snapshot) and chose the correct element in all 94 live decisions (18 distinct decisions x 5 runs; median 51 ms). On the 88 non-trivial replayed cases, top-1 accuracy was 67% (322M) and 74% (421M) versus 55% for lexical matching, 74% for embeddings and 82% for the LLM; on a live page with 40 or more candidates Laya was no better than lexical matching. Laya's confidence was informative, and escalating uncertain decisions to the LLM gave 78.4% (322M) and 86.4% (421M) accuracy at 141 and 223 ms, versus 81.8% at 307 ms for the LLM alone. Samples are small and no accuracy difference between grounders is significant after correction. We also report an idle-gap latency penalty and provide a replication package.",

@@ -5,6 +5,7 @@ type: software
 authors:
   - family-names: "Keller"
     given-names: "Robert"
+    orcid: "https://orcid.org/0009-0003-0388-5246"
     affiliation: "Independent researcher"
 license: MIT
 repository-code: "https://github.com/Who-Code/laya-browser-grounding"

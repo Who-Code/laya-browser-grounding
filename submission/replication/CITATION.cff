@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite the accompanying paper."
+title: "Replication package: Laya-MLX as a Fast Local Decision Engine for Browser Automation"
+type: software
+authors:
+  - family-names: "Keller"
+    given-names: "Robert"
+    affiliation: "Independent researcher"
+license: MIT
+version: "1.0.0"
+date-released: "[YYYY-MM-DD]"
+repository-code: "[repository URL]"
+doi: "[Zenodo DOI]"
+keywords: [browser automation, element grounding, GUI testing, encoder models, Apple MLX]

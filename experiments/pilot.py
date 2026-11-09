@@ -153,7 +153,7 @@ class EmbedGrounder:
     async def pick(self, instruction, cands):
         if not cands: return {"idx": None, "p": 0.0, "ms": 0.0}
         t = time.perf_counter()
-        r = await asyncio.to_thread(_ollama, "/api/embed", {"model": "bge-m3", "input": [instruction] + [c.text for c in cands], "keep_alive": "10m"})
+        r = await asyncio.to_thread(_ollama, "/api/embed", {"model": "bge-m3", "input": [instruction] + [c.text for c in cands], "keep_alive": "60s"})
         E = r["embeddings"]; dot = lambda a, b: sum(x * y for x, y in zip(a, b))
         nrm = lambda a: math.sqrt(dot(a, a)); q = E[0]
         sims = [dot(q, e) / (nrm(q) * nrm(e) + 1e-9) for e in E[1:]]
@@ -167,7 +167,7 @@ class LLMGrounder:
         listing = "\n".join(f"[{k}] {c.text}" for k, c in enumerate(cands))
         prompt = f"Page elements:\n{listing}\n\nInstruction: {instruction}\nWhich element number should be acted on? Answer with only the number."
         t = time.perf_counter()
-        r = await asyncio.to_thread(_ollama, "/api/chat", {"model": self.model, "stream": False, "think": False, "keep_alive": "10m",
+        r = await asyncio.to_thread(_ollama, "/api/chat", {"model": self.model, "stream": False, "think": False, "keep_alive": "60s",
             "messages": [{"role": "user", "content": prompt}], "options": {"temperature": 0, "num_predict": 8}})
         m = re.search(r"\d+", r["message"]["content"]); idx = int(m.group()) if m else None
         if idx is not None and idx >= len(cands): idx = None

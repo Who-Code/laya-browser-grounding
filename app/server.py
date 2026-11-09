@@ -1,9 +1,10 @@
 """Laya Pilot: local dashboard + Playwright-driven Chrome + Laya-MLX decisions."""
 from __future__ import annotations
-import argparse, asyncio, json, pathlib, webbrowser
+import argparse, asyncio, json, os, pathlib, time, webbrowser
 from aiohttp import web, WSMsgType
 from playwright.async_api import async_playwright
 
+import guard
 import helpcenter
 from agents import play_game, pursue_goal
 from brain import Brain, DEFAULT_MODEL
@@ -19,6 +20,8 @@ class App:
         self.task: asyncio.Task | None = None
         self.pw = self.browser = self.page = None
         self.status = {"type": "status", "state": "loading", "model": model}
+        self.last_activity = time.time()
+        self.limits = {**guard.LIMITS, **{k: float(os.environ[f"LAYA_{k.upper()}"]) for k in guard.LIMITS if f"LAYA_{k.upper()}" in os.environ}}
 
     def emit(self, msg: dict):
         self.status = msg if msg["type"] == "status" else self.status
@@ -36,7 +39,30 @@ class App:
         await self.page.bring_to_front()
         return self.page
 
+    async def close_browser(self):
+        """Close Chrome completely (it is the other big memory consumer besides the model)."""
+        try:
+            if self.browser: await self.browser.close()
+        except Exception: pass
+        self.browser = self.page = None
+
+    async def watchdog(self):
+        """Every 2 s: stop automation if RAM/swap/disk get critical; close Chrome after 5 idle minutes."""
+        while True:
+            await asyncio.sleep(2)
+            level, why = guard.assess(limits=self.limits)
+            running = bool(self.task and not self.task.done())
+            if level == "stop":
+                if running: self.task.cancel()
+                await self.close_browser(); self.brain.memory_mb()
+                import mlx.core as mx; mx.clear_cache()
+                self.emit({"type": "error", "text": "Stopped for safety: " + "; ".join(why) + ". Free disk space / close heavy apps, then start again."})
+                await asyncio.sleep(10)
+            elif not running and self.browser and time.time() - self.last_activity > 300:
+                await self.close_browser()
+
     async def run(self, cfg: dict):
+        self.last_activity = time.time()
         try:
             page = await self.ensure_page()
             self.emit({"type": "status", "state": "running", "mode": cfg["mode"]})
@@ -55,7 +81,8 @@ class App:
         except Exception as e:  # surface to the UI instead of dying silently
             self.emit({"type": "error", "text": f"{type(e).__name__}: {e}"})
         finally:
-            self.emit({"type": "stats", **self.brain.stats()})
+            self.last_activity = time.time()
+            self.emit({"type": "stats", **self.brain.stats(), "mlx_mb": self.brain.memory_mb(), "resources": guard.snapshot()})
             self.emit({"type": "status", "state": "ready", "model": self.brain.repo})
 
     # -- HTTP handlers ---------------------------------------------------------------
@@ -76,6 +103,7 @@ class App:
             await self.brain.start()
             self.emit({"type": "status", "state": "ready", "model": self.brain.repo, "load_s": round(self.brain.load_s, 2)})
         app["load"] = asyncio.create_task(load())
+        app["watchdog"] = asyncio.create_task(self.watchdog())
 
     async def shutdown(self, app):
         if self.browser: await self.browser.close()
@@ -86,6 +114,7 @@ def make_app(a: App) -> web.Application:
     app = web.Application()
     page = lambda f: (lambda r: web.FileResponse(HERE / "static" / f))
     app.add_routes([
+        web.get("/api/resources", lambda r: web.json_response({**guard.snapshot(), "level": guard.assess(limits=a.limits)[0], "mlx_mb": a.brain.memory_mb()})),
         web.get("/", page("dashboard.html")), web.get("/game", page("game.html")), web.get("/ws", a.ws),
         web.get("/help", lambda r: web.Response(text=helpcenter.home(), content_type="text/html")),
         web.get("/help/{slug}", lambda r: web.Response(text=helpcenter.article(r.match_info["slug"]) or "not found",
@@ -98,8 +127,9 @@ def make_app(a: App) -> web.Application:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--port", type=int, default=8765)
-    ap.add_argument("--model", default=DEFAULT_MODEL); ap.add_argument("--no-open", action="store_true")
+    ap.add_argument("--model", default=DEFAULT_MODEL); ap.add_argument("--force", action="store_true", help="start even if the resource preflight says it is unsafe"); ap.add_argument("--no-open", action="store_true")
     args = ap.parse_args()
+    if not guard.preflight(args.force): raise SystemExit(1)
     a = App(args.port, args.model)
     if not args.no_open:
         asyncio.get_event_loop_policy()  # noqa

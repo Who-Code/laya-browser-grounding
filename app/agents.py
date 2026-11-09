@@ -49,7 +49,7 @@ async def play_game(page: Page, brain, emit, base: str, level: str, duration: in
                   "score": snap["s"]["score"]})
             chosen.pop(low["id"], None)
         else:
-            await asyncio.sleep(0.002)
+            await asyncio.sleep(0.02)   # idle poll: 50 Hz is plenty and keeps Chrome/Python CPU low
     final = await page.evaluate("window.__score()")
     emit({"type": "finished", "mode": "game", "result": final, "decisions": n})
     return final

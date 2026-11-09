@@ -24,6 +24,12 @@ Needs Apple Silicon, Python 3.12, Google Chrome.
 ```
 The first start downloads the Laya checkpoint (about 0.6 GB) from Hugging Face.
 
+## Resource safety (read this before running experiments on a 16 GB Mac)
+MLX keeps freed GPU buffers in a cache whose default limit is about 15 GB on a 16 GB Mac. Combined with a local LLM (Ollama), Chrome and normal apps this can push macOS into heavy swapping; swap files live on the system disk, and on a nearly full disk this freezes the machine. What the code does now:
+- `app/brain.py` caps the MLX cache at 256 MB (`LAYA_CACHE_MB`) and the memory limit at 4 GB (`LAYA_MEM_GB`); measured cost: none (cache 1.2-3.9 GB before, 0.25 GB after).
+- `app/guard.py` checks free disk, swap and available memory. The demo server refuses to start in a critical state (`--force` overrides), loading a model does the same (`LAYA_FORCE=1`), and a watchdog stops a running automation, closes Chrome and reports why when limits are crossed (`LAYA_MAX_SWAP_GB`, `LAYA_MIN_DISK_FREE_GB`, `LAYA_MIN_MEM_AVAILABLE_PCT`). Chrome is also closed after 5 idle minutes. `GET /api/resources` shows the current numbers.
+- Experiments that compare against Ollama models must not run next to other heavy models: use `experiments/run_all_grounding.sh` (one grounder per process), and `ollama stop <model>` afterwards. Keep at least 30 GB of disk free.
+
 ## Reproducing the study
 See `submission/replication/README.md` (regeneration of all tables and figures from the included raw results needs no models; re-running needs Ollama with `qwen3:8b` and `bge-m3`).
 
